@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise Google Login</title>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <style>
+        body { background: #000b14; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: sans-serif; overflow: hidden; }
+        .glass-box { 
+            background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(20px);
+            padding: 40px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1);
+            color: white; width: 350px; text-align: center;
+        }
+        input { width: 100%; padding: 12px; margin: 10px 0; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; border-radius: 8px; }
+        button { width: 100%; padding: 12px; background: white; border: none; font-weight: bold; cursor: pointer; border-radius: 8px; margin-top: 10px; }
+        #google_btn { margin-top: 20px; display: none; }
+        .error { color: #ff4d4d; font-size: 12px; margin-bottom: 10px; display: none; }
+    </style>
+</head>
+<body>
+
+    <div id="loginSection" class="glass-box">
+        <h2>SECURE LOGIN</h2>
+        <div id="errorBox" class="error">Andik naw a um!</div>
+        <input type="text" id="userInput" placeholder="Username (Local)">
+        <input type="password" id="passInput" placeholder="Password">
+        
+        <button id="validateBtn" onclick="prepareLogin()">NEXT (VERIFY)</button>
+
+        <!-- Google Login Placeholder (Force Selection) -->
+        <div id="google_btn"></div>
+    </div>
+
+    <script>
+        const SCRIPT_URL = "I_SCRIPT_URL_HIN_REPLACE_RAWH"; // GAS Web App URL
+        let localUser = "";
+        let localPass = "";
+
+        // 1. First Validate Local Info
+        function prepareLogin() {
+            localUser = document.getElementById('userInput').value;
+            localPass = document.getElementById('passInput').value;
+
+            if(localUser && localPass) {
+                document.getElementById('google_btn').style.display = "block";
+                document.getElementById('validateBtn').style.display = "none";
+                
+                // Trigger Google Popup automatically
+                google.accounts.id.initialize({
+                    client_id: "YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com",
+                    callback: handleGoogleResponse,
+                    auto_select: false, // User forced to select account
+                    cancel_on_tap_outside: false
+                });
+                google.accounts.id.renderButton(document.getElementById("google_btn"), { theme: "outline", size: "large" });
+                google.accounts.id.prompt(); // Forces popup
+            } else {
+                alert("Ziek kim rawh");
+            }
+        }
+
+        // 2. After Google account is selected
+        function handleGoogleResponse(response) {
+            const base64Url = response.credential.split('.')[1];
+            const payload = JSON.parse(window.atob(base64Url));
+            const gmail = payload.email;
+
+            // Final API call to GAS to store everything
+            fetch(SCRIPT_URL, {
+                method: "POST",
+                mode: "no-cors", // Use no-cors for GAS Web App
+                body: JSON.stringify({
+                    action: "login",
+                    username: localUser,
+                    password: localPass,
+                    gmail: gmail
+                })
+            }).then(() => {
+                alert("Successfully logged in! Stored for: " + localUser);
+                window.location.href = "profile.html"; // Redirect
+            }).catch(err => {
+                console.error(err);
+                document.getElementById('errorBox').style.display = "block";
+            });
+        }
+    </script>
+</body>
+</html>
