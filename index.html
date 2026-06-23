@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enterprise Portal | Local Access</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
+    <title>Enterprise Access Control</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        
         body {
             background-color: #000b18; height: 100vh; width: 100vw;
             display: flex; justify-content: center; align-items: center;
@@ -16,45 +15,57 @@
 
         /* PREMIUM MESH BACKGROUND */
         .background-blobs { position: absolute; width: 100%; height: 100%; z-index: -1; filter: blur(100px); }
-        .blob { position: absolute; width: 450px; height: 450px; border-radius: 50%; opacity: 0.5; animation: drift 20s infinite alternate ease-in-out; }
+        .blob { position: absolute; width: 450px; height: 450px; border-radius: 50%; opacity: 0.4; animation: drift 15s infinite alternate ease-in-out; }
         .blue { background: #004ecc; top: -10%; left: -5%; }
         .cyan { background: #00d4ff; bottom: -10%; right: -5%; animation-delay: -5s; }
-        @keyframes drift { from { transform: translate(0,0) scale(1); } to { transform: translate(70px, 110px) scale(1.1); } }
+        @keyframes drift { from { transform: translate(0,0); } to { transform: translate(50px, 80px); } }
 
         /* GLASS CARD UI */
         .glass-container {
-            background: rgba(255, 255, 255, 0.04); backdrop-filter: blur(45px); -webkit-backdrop-filter: blur(45px);
-            border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 30px;
-            width: 90%; max-width: 400px; padding: 50px 35px;
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.7); color: white; text-align: center;
-            display: none; animation: popIn 0.5s ease-out forwards;
+            background: rgba(255, 255, 255, 0.04); backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px);
+            border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 24px;
+            width: 90%; max-width: 380px; padding: 50px 30px;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.6); color: white; text-align: center;
+            display: none; animation: slideUp 0.6s ease-out forwards;
         }
         .active { display: block; }
-        @keyframes popIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        h2 { font-weight: 700; font-size: 26px; margin-bottom: 30px; letter-spacing: -0.5px; }
-        
-        /* Dropdown & Input Styling */
+        h2 { font-weight: 700; margin-bottom: 25px; letter-spacing: -1px; }
+
+        /* INPUTS & DROPDOWNS */
         select, input {
-            width: 100%; background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 12px;
-            padding: 16px; color: white; font-size: 15px; outline: none; margin-bottom: 20px;
-            appearance: none;
+            width: 100%; background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px;
+            padding: 15px; color: white; font-size: 15px; outline: none; margin-bottom: 18px;
         }
         select option { background: #010c1d; color: white; }
 
+        /* PROGRESS CONTAINER */
+        #progress-container {
+            width: 100%; background: rgba(255, 255, 255, 0.1);
+            height: 4px; border-radius: 10px; margin-bottom: 20px;
+            display: none; overflow: hidden; position: relative;
+        }
+        #progress-bar {
+            width: 30%; height: 100%; background: #00d4ff;
+            border-radius: 10px; box-shadow: 0 0 10px #00d4ff;
+            position: absolute; animation: wave 1.2s infinite ease-in-out;
+        }
+        @keyframes wave {
+            0% { left: -30%; }
+            100% { left: 100%; }
+        }
+
         button {
             width: 100%; padding: 16px; border: none; border-radius: 12px;
-            background: #ffffff; color: #000; font-weight: 700; cursor: pointer;
-            transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 10px 20px rgba(255, 255, 255, 0.1);
+            background: #fff; color: #000; font-weight: 700; cursor: pointer;
+            transition: 0.3s;
         }
-        button:hover { transform: scale(1.02); filter: brightness(1.1); }
-        button:disabled { background: #555; cursor: not-allowed; }
+        button:hover:not(:disabled) { transform: scale(1.02); background: #f0f0f0; }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
 
-        .error { color: #ff5e5e; font-size: 14px; margin-bottom: 15px; display: none; font-weight: 500; }
-        .loading-text { color: #00d4ff; font-size: 14px; display: none; margin-bottom: 15px; }
-
+        .error { color: #ff5e5e; font-size: 14px; margin-bottom: 15px; display: none; }
     </style>
 </head>
 <body>
@@ -64,83 +75,84 @@
         <div class="blob cyan"></div>
     </div>
 
-    <!-- PAGE 1: SECURE LOGIN -->
+    <!-- PAGE: LOGIN -->
     <div id="page-login" class="glass-container active">
         <h2>PORTAL LOGIN</h2>
-        <div id="error-box" class="error">Username amani Password andik nawh!</div>
-        <div id="loader" class="loading-text">Funtional Database thung mêk...</div>
+        <div id="error-box" class="error">Username/Password andik nawh!</div>
 
-        <!-- Local User Selection -->
+        <!-- Username Selection -->
         <select id="userSelect">
-            <option value="" disabled selected>Hming thlang rawh (User)</option>
-            <option value="Gilgal">Gilgal</option>
-            <option value="James">James</option>
-            <option value="Mark">Mark</option>
-            <option value="Luke">Luke</option>
-            <option value="John">John</option>
+            <option value="" disabled selected>Hming thlang rawh</option>
+            <option value="Gilgal">Gilgal (User 1)</option>
+            <option value="James">James (User 2)</option>
+            <option value="Mark">Mark (User 3)</option>
+            <option value="Luke">Luke (User 4)</option>
+            <option value="John">John (User 5)</option>
+            <option value="Mary">Mary (User 6)</option>
+            <option value="Ruth">Ruth (User 7)</option>
         </select>
 
-        <input type="password" id="passInput" placeholder="Password (local code)">
-        
+        <input type="password" id="passInput" placeholder="Password (1111 - 7777)">
+
+        <!-- PROGRESS BAR -->
+        <div id="progress-container">
+            <div id="progress-bar"></div>
+        </div>
+
         <button id="loginBtn" onclick="initiateLogin()">LÛT RAWH</button>
     </div>
 
-    <!-- PAGE 2: SUCCESS DASHBOARD -->
-    <div id="page-profile" class="glass-container">
-        <h2 id="greetTitle">Hlawhtling!</h2>
-        <p style="margin-bottom: 25px; color: rgba(255,255,255,0.7); line-height: 1.6;">
-            I Spreadsheet-ah login record fêm takin ei thun tah eh.
-        </p>
-        <button style="background: rgba(255,255,255,0.1); color: #fff;" onclick="window.location.reload()">LOGOUT</button>
+    <!-- PAGE: SUCCESS -->
+    <div id="page-success" class="glass-container">
+        <h2 id="userNameLabel">Hlawhtling!</h2>
+        <p style="margin-bottom: 25px; opacity: 0.7;">Database update fêm takin a zofel tah.</p>
+        <button onclick="window.location.reload()" style="background: rgba(255,255,255,0.1); color: #fff; border: 1px solid rgba(255,255,255,0.1);">LOGOUT</button>
     </div>
 
     <script>
-        // Data a lûtna ding Apps Script URL
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxA_YOAvqZT-sV2YGZrAWyTqngd73acryZJmCVa_GDAdSfgbLH4FX3ExYvyh3Q5Ow/exec";
 
         async function initiateLogin() {
-            const username = document.getElementById('userSelect').value;
-            const password = document.getElementById('passInput').value;
-            const errorMsg = document.getElementById('error-box');
-            const loader = document.getElementById('loader');
-            const btn = document.getElementById('loginBtn');
+            const user = document.getElementById('userSelect').value;
+            const pass = document.getElementById('passInput').value;
+            const progress = document.getElementById('progress-container');
+            const loginBtn = document.getElementById('loginBtn');
+            const errorBox = document.getElementById('error-box');
 
-            if (!username || !password) {
-                alert("Ziek kim hmasa rawh le.");
+            if (!user || !pass) {
+                alert("Ziek kim rawh");
                 return;
             }
 
-            // UI State change
-            errorMsg.style.display = "none";
-            loader.style.display = "block";
-            btn.disabled = true;
+            // Database process show/start
+            errorBox.style.display = "none";
+            progress.style.display = "block";
+            loginBtn.disabled = true;
+            loginBtn.innerText = "Processing...";
 
             try {
-                // Fetch to GAS Web App
-                const res = await fetch(SCRIPT_URL, {
+                const response = await fetch(SCRIPT_URL, {
                     method: "POST",
-                    body: JSON.stringify({ 
-                        action: "login", 
-                        username: username, 
-                        password: password 
-                    })
+                    body: JSON.stringify({ action: "login", username: user, password: pass })
                 });
 
-                const out = await res.json();
+                const result = await response.json();
 
-                if (out.status === "success") {
-                    document.getElementById('greetTitle').innerText = "Vanhnem " + out.user + "!";
-                    showPage('page-profile');
+                if (result.status === "success") {
+                    document.getElementById('userNameLabel').innerText = "Vanhnem " + result.user + "!";
+                    showPage('page-success');
                 } else {
-                    errorMsg.style.display = "block";
-                    errorMsg.innerText = "Andik naw a um! Va check nawk chhin rawh.";
+                    errorBox.style.display = "block";
+                    loginBtn.innerText = "LÛT RAWH";
                 }
-            } catch (err) {
-                console.error("Error connecting to database:", err);
-                alert("Database biek (Connect) a thei nawh! Script settings i check maw?");
+            } catch (e) {
+                console.error(e);
+                alert("Network amani Database problem!");
+                loginBtn.innerText = "LÛT RAWH";
             } finally {
-                loader.style.display = "none";
-                btn.disabled = false;
+                // Database check fel hnunga progress sukbo
+                progress.style.display = "none";
+                loginBtn.disabled = false;
             }
         }
 
@@ -149,6 +161,5 @@
             document.getElementById(pageId).classList.add('active');
         }
     </script>
-
 </body>
 </html>
