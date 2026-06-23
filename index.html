@@ -3,87 +3,152 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enterprise Google Login</title>
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <title>Enterprise Portal | Local Access</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
     <style>
-        body { background: #000b14; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: sans-serif; overflow: hidden; }
-        .glass-box { 
-            background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(20px);
-            padding: 40px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1);
-            color: white; width: 350px; text-align: center;
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        
+        body {
+            background-color: #000b18; height: 100vh; width: 100vw;
+            display: flex; justify-content: center; align-items: center;
+            overflow: hidden; position: relative;
         }
-        input { width: 100%; padding: 12px; margin: 10px 0; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; border-radius: 8px; }
-        button { width: 100%; padding: 12px; background: white; border: none; font-weight: bold; cursor: pointer; border-radius: 8px; margin-top: 10px; }
-        #google_btn { margin-top: 20px; display: none; }
-        .error { color: #ff4d4d; font-size: 12px; margin-bottom: 10px; display: none; }
+
+        /* PREMIUM MESH BACKGROUND */
+        .background-blobs { position: absolute; width: 100%; height: 100%; z-index: -1; filter: blur(100px); }
+        .blob { position: absolute; width: 450px; height: 450px; border-radius: 50%; opacity: 0.5; animation: drift 20s infinite alternate ease-in-out; }
+        .blue { background: #004ecc; top: -10%; left: -5%; }
+        .cyan { background: #00d4ff; bottom: -10%; right: -5%; animation-delay: -5s; }
+        @keyframes drift { from { transform: translate(0,0) scale(1); } to { transform: translate(70px, 110px) scale(1.1); } }
+
+        /* GLASS CARD UI */
+        .glass-container {
+            background: rgba(255, 255, 255, 0.04); backdrop-filter: blur(45px); -webkit-backdrop-filter: blur(45px);
+            border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 30px;
+            width: 90%; max-width: 400px; padding: 50px 35px;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.7); color: white; text-align: center;
+            display: none; animation: popIn 0.5s ease-out forwards;
+        }
+        .active { display: block; }
+        @keyframes popIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+
+        h2 { font-weight: 700; font-size: 26px; margin-bottom: 30px; letter-spacing: -0.5px; }
+        
+        /* Dropdown & Input Styling */
+        select, input {
+            width: 100%; background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.12); border-radius: 12px;
+            padding: 16px; color: white; font-size: 15px; outline: none; margin-bottom: 20px;
+            appearance: none;
+        }
+        select option { background: #010c1d; color: white; }
+
+        button {
+            width: 100%; padding: 16px; border: none; border-radius: 12px;
+            background: #ffffff; color: #000; font-weight: 700; cursor: pointer;
+            transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 10px 20px rgba(255, 255, 255, 0.1);
+        }
+        button:hover { transform: scale(1.02); filter: brightness(1.1); }
+        button:disabled { background: #555; cursor: not-allowed; }
+
+        .error { color: #ff5e5e; font-size: 14px; margin-bottom: 15px; display: none; font-weight: 500; }
+        .loading-text { color: #00d4ff; font-size: 14px; display: none; margin-bottom: 15px; }
+
     </style>
 </head>
 <body>
 
-    <div id="loginSection" class="glass-box">
-        <h2>SECURE LOGIN</h2>
-        <div id="errorBox" class="error">Andik naw a um!</div>
-        <input type="text" id="userInput" placeholder="Username (Local)">
-        <input type="password" id="passInput" placeholder="Password">
-        
-        <button id="validateBtn" onclick="prepareLogin()">NEXT (VERIFY)</button>
+    <div class="background-blobs">
+        <div class="blob blue"></div>
+        <div class="blob cyan"></div>
+    </div>
 
-        <!-- Google Login Placeholder (Force Selection) -->
-        <div id="google_btn"></div>
+    <!-- PAGE 1: SECURE LOGIN -->
+    <div id="page-login" class="glass-container active">
+        <h2>PORTAL LOGIN</h2>
+        <div id="error-box" class="error">Username amani Password andik nawh!</div>
+        <div id="loader" class="loading-text">Funtional Database thung mêk...</div>
+
+        <!-- Local User Selection -->
+        <select id="userSelect">
+            <option value="" disabled selected>Hming thlang rawh (User)</option>
+            <option value="Gilgal">Gilgal</option>
+            <option value="James">James</option>
+            <option value="Mark">Mark</option>
+            <option value="Luke">Luke</option>
+            <option value="John">John</option>
+        </select>
+
+        <input type="password" id="passInput" placeholder="Password (local code)">
+        
+        <button id="loginBtn" onclick="initiateLogin()">LÛT RAWH</button>
+    </div>
+
+    <!-- PAGE 2: SUCCESS DASHBOARD -->
+    <div id="page-profile" class="glass-container">
+        <h2 id="greetTitle">Hlawhtling!</h2>
+        <p style="margin-bottom: 25px; color: rgba(255,255,255,0.7); line-height: 1.6;">
+            I Spreadsheet-ah login record fêm takin ei thun tah eh.
+        </p>
+        <button style="background: rgba(255,255,255,0.1); color: #fff;" onclick="window.location.reload()">LOGOUT</button>
     </div>
 
     <script>
-        const SCRIPT_URL = "I_SCRIPT_URL_HIN_REPLACE_RAWH"; // GAS Web App URL
-        let localUser = "";
-        let localPass = "";
+        // Data a lûtna ding Apps Script URL
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxA_YOAvqZT-sV2YGZrAWyTqngd73acryZJmCVa_GDAdSfgbLH4FX3ExYvyh3Q5Ow/exec";
 
-        // 1. First Validate Local Info
-        function prepareLogin() {
-            localUser = document.getElementById('userInput').value;
-            localPass = document.getElementById('passInput').value;
+        async function initiateLogin() {
+            const username = document.getElementById('userSelect').value;
+            const password = document.getElementById('passInput').value;
+            const errorMsg = document.getElementById('error-box');
+            const loader = document.getElementById('loader');
+            const btn = document.getElementById('loginBtn');
 
-            if(localUser && localPass) {
-                document.getElementById('google_btn').style.display = "block";
-                document.getElementById('validateBtn').style.display = "none";
-                
-                // Trigger Google Popup automatically
-                google.accounts.id.initialize({
-                    client_id: "YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com",
-                    callback: handleGoogleResponse,
-                    auto_select: false, // User forced to select account
-                    cancel_on_tap_outside: false
+            if (!username || !password) {
+                alert("Ziek kim hmasa rawh le.");
+                return;
+            }
+
+            // UI State change
+            errorMsg.style.display = "none";
+            loader.style.display = "block";
+            btn.disabled = true;
+
+            try {
+                // Fetch to GAS Web App
+                const res = await fetch(SCRIPT_URL, {
+                    method: "POST",
+                    body: JSON.stringify({ 
+                        action: "login", 
+                        username: username, 
+                        password: password 
+                    })
                 });
-                google.accounts.id.renderButton(document.getElementById("google_btn"), { theme: "outline", size: "large" });
-                google.accounts.id.prompt(); // Forces popup
-            } else {
-                alert("Ziek kim rawh");
+
+                const out = await res.json();
+
+                if (out.status === "success") {
+                    document.getElementById('greetTitle').innerText = "Vanhnem " + out.user + "!";
+                    showPage('page-profile');
+                } else {
+                    errorMsg.style.display = "block";
+                    errorMsg.innerText = "Andik naw a um! Va check nawk chhin rawh.";
+                }
+            } catch (err) {
+                console.error("Error connecting to database:", err);
+                alert("Database biek (Connect) a thei nawh! Script settings i check maw?");
+            } finally {
+                loader.style.display = "none";
+                btn.disabled = false;
             }
         }
 
-        // 2. After Google account is selected
-        function handleGoogleResponse(response) {
-            const base64Url = response.credential.split('.')[1];
-            const payload = JSON.parse(window.atob(base64Url));
-            const gmail = payload.email;
-
-            // Final API call to GAS to store everything
-            fetch(SCRIPT_URL, {
-                method: "POST",
-                mode: "no-cors", // Use no-cors for GAS Web App
-                body: JSON.stringify({
-                    action: "login",
-                    username: localUser,
-                    password: localPass,
-                    gmail: gmail
-                })
-            }).then(() => {
-                alert("Successfully logged in! Stored for: " + localUser);
-                window.location.href = "profile.html"; // Redirect
-            }).catch(err => {
-                console.error(err);
-                document.getElementById('errorBox').style.display = "block";
-            });
+        function showPage(pageId) {
+            document.querySelectorAll('.glass-container').forEach(c => c.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
         }
     </script>
+
 </body>
 </html>
